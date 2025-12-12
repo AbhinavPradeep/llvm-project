@@ -20,6 +20,9 @@ class TriviallyDestructedClass {
   View a, b;
 };
 
+MyObj temporary();
+void use(View);
+
 //===----------------------------------------------------------------------===//
 // Basic Definite Use-After-Free (-W...permissive)
 // These are cases where the pointer is guaranteed to be dangling at the use site.
@@ -1066,6 +1069,7 @@ void parentheses(bool cond) {
   (void)*p;  // expected-note 4 {{later used here}}
 }
 
+<<<<<<< HEAD
 namespace GH162834 {
 // https://github.com/llvm/llvm-project/issues/162834
 template <class T>
@@ -1298,3 +1302,11 @@ void add(int c, MyObj* node) {
   arr[4] = node;
 }
 } // namespace CppCoverage
+=======
+void use_temporary_after_destruction() {
+  View a;
+  a = temporary(); // expected-warning {{object whose reference is captured does not live long enough}} \
+                  expected-note {{destroyed here}}
+  use(a); // expected-note {{later used here}}
+}
+>>>>>>> db6fafac81a4 (Add support for loans to temporary materializations)
