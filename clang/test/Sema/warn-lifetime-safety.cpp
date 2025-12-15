@@ -1309,4 +1309,7 @@ void use_temporary_after_destruction() {
                   expected-note {{destroyed here}}
   use(a); // expected-note {{later used here}}
 }
+<<<<<<< HEAD
 >>>>>>> db6fafac81a4 (Add support for loans to temporary materializations)
+=======
+>>>>>>> 51a8c9cd6e24 (Use MaterializeTemporaryExpr to represent temporary storage)
