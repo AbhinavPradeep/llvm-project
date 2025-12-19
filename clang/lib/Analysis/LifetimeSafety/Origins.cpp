@@ -11,6 +11,7 @@
 #include "clang/AST/Attr.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/DeclTemplate.h"
+#include "clang/AST/ExprCXX.h"
 #include "clang/AST/TypeBase.h"
 #include "clang/Analysis/Analyses/LifetimeSafety/LifetimeAnnotations.h"
 
@@ -92,6 +93,9 @@ OriginList *OriginManager::getOrCreateList(const ValueDecl *D) {
 OriginList *OriginManager::getOrCreateList(const Expr *E) {
   if (auto *ParenIgnored = E->IgnoreParens(); ParenIgnored != E)
     return getOrCreateList(ParenIgnored);
+
+  if (const ExprWithCleanups *EWC = dyn_cast<ExprWithCleanups>(E))
+    return getOrCreateList(EWC->getSubExpr());
 
   if (!hasOrigins(E))
     return nullptr;

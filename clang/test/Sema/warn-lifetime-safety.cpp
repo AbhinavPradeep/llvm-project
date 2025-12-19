@@ -10,8 +10,13 @@ struct [[gsl::Owner]] MyObj {
   View getView() const [[clang::lifetimebound]];
 };
 
+struct [[gsl::Owner]] MyTrivialObj {
+  int id;
+};
+
 struct [[gsl::Pointer()]] View {
   View(const MyObj&); // Borrows from MyObj
+  View(const MyTrivialObj &); // Borrows from MyTrivialObj
   View();
   void use() const;
 };
@@ -20,7 +25,11 @@ class TriviallyDestructedClass {
   View a, b;
 };
 
-MyObj temporary();
+MyObj non_trivially_destructed_temporary();
+MyTrivialObj trivially_destructed_temporary();
+View construct_view(const MyObj &obj [[clang::lifetimebound]]) {
+  return View(obj);
+}
 void use(View);
 
 //===----------------------------------------------------------------------===//
@@ -1069,7 +1078,27 @@ void parentheses(bool cond) {
   (void)*p;  // expected-note 4 {{later used here}}
 }
 
-<<<<<<< HEAD
+void use_temporary_after_destruction() {
+  View a;
+  a = non_trivially_destructed_temporary(); // expected-warning {{object whose reference is captured does not live long enough}} \
+                  expected-note {{destroyed here}}
+  use(a); // expected-note {{later used here}}
+}
+
+void passing_temporary_to_lifetime_bound_function() {
+  View a = construct_view(non_trivially_destructed_temporary()); // expected-warning {{object whose reference is captured does not live long enough}} \
+                expected-note {{destroyed here}}
+  use(a); // expected-note {{later used here}}
+}
+
+// FIXME: We expect to be warned of use-after-free at use(a), but this is not the
+// case as current analysis does not handle trivially destructed temporaries.
+void use_trivial_temporary_after_destruction() {
+  View a;
+  a = trivially_destructed_temporary();
+  use(a);
+}
+
 namespace GH162834 {
 // https://github.com/llvm/llvm-project/issues/162834
 template <class T>
@@ -1302,14 +1331,3 @@ void add(int c, MyObj* node) {
   arr[4] = node;
 }
 } // namespace CppCoverage
-=======
-void use_temporary_after_destruction() {
-  View a;
-  a = temporary(); // expected-warning {{object whose reference is captured does not live long enough}} \
-                  expected-note {{destroyed here}}
-  use(a); // expected-note {{later used here}}
-}
-<<<<<<< HEAD
->>>>>>> db6fafac81a4 (Add support for loans to temporary materializations)
-=======
->>>>>>> 51a8c9cd6e24 (Use MaterializeTemporaryExpr to represent temporary storage)
