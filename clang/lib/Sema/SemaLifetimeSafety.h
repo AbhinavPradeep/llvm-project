@@ -25,34 +25,7 @@
 namespace clang::lifetimes {
 
 inline bool IsLifetimeSafetyEnabled(Sema &S, const Decl *D) {
-  if (S.getLangOpts().DebugRunLifetimeSafety)
-    return true;
-  DiagnosticsEngine &Diags = S.getDiagnostics();
-  constexpr unsigned DiagIDs[] = {
-      diag::warn_lifetime_safety_use_after_scope,
-      diag::warn_lifetime_safety_use_after_scope_moved,
-      diag::warn_lifetime_safety_use_after_free,
-      diag::warn_lifetime_safety_return_stack_addr,
-      diag::warn_lifetime_safety_return_stack_addr_moved,
-      diag::warn_lifetime_safety_invalidation,
-      diag::warn_lifetime_safety_dangling_field,
-      diag::warn_lifetime_safety_dangling_field_moved,
-      diag::warn_lifetime_safety_dangling_global,
-      diag::warn_lifetime_safety_dangling_global_moved,
-      diag::warn_lifetime_safety_noescape_escapes,
-      diag::warn_lifetime_safety_lifetimebound_violation,
-      diag::warn_lifetime_safety_cross_tu_misplaced_lifetimebound,
-      diag::warn_lifetime_safety_intra_tu_misplaced_lifetimebound,
-      diag::warn_lifetime_safety_invalidated_field,
-      diag::warn_lifetime_safety_invalidated_global,
-      diag::warn_lifetime_safety_cross_tu_param_suggestion,
-      diag::warn_lifetime_safety_intra_tu_param_suggestion,
-      diag::warn_lifetime_safety_cross_tu_this_suggestion,
-      diag::warn_lifetime_safety_intra_tu_this_suggestion};
-  for (unsigned DiagID : DiagIDs)
-    if (!Diags.isIgnored(DiagID, D->getBeginLoc()))
-      return true;
-  return false;
+  return true;
 }
 
 class LifetimeSafetySemaHelperImpl : public LifetimeSafetySemaHelper {
